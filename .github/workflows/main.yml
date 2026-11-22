@@ -20,14 +20,16 @@ jobs:
 
       - name: Compatibilitat majuscules/minuscules Windows-Linux
         run: |
-          find . -name "*.h" | while read f; do
-            dir=$(dirname "$f")
-            base=$(basename "$f")
-            lower=$(echo "$base" | tr '[:upper:]' '[:lower:]')
-            if [ "$base" != "$lower" ] && [ ! -e "$dir/$lower" ]; then
-              ln -s "$base" "$dir/$lower"
-            fi
-          done
+          find . -type f -name "*.h" -exec bash -c '
+            for f; do
+              dir=$(dirname "$f")
+              base=$(basename "$f")
+              lower=$(echo "$base" | tr "[:upper:]" "[:lower:]")
+              if [ "$base" != "$lower" ] && [ ! -e "$dir/$lower" ]; then
+                ln -s "$base" "$dir/$lower"
+              fi
+            done
+          ' bash {} +
 
       - name: Compilar firmware JN5189
         working-directory: PulsesSensor/Build/mcux

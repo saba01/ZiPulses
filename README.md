@@ -3,6 +3,18 @@ Compteur d'impulsions communiquant en ZigBee 3.0.
 Le ZiPulses est disponible en boutique :  
 [Boutique LiXee](https://lixee.fr/)
 
+## Versió personalitzada: `4000-12.2-ExtPw` (Mode Alimentació Externa)
+
+Aquest *fork* inclou modificacions específiques sobre la base oficial **v12.2** per fer servir el ZiPulses amb alimentació externa fixa (placa solar / font) en un comptador d'aigua:
+
+* **Valors per defecte de fàbrica (`app_zlo_sensor_node.c` i `app_main.c`):** Arrenca directament amb unitats en **m³** (`unitMeasure = 1`), **`divisor = 1000`** i **`batterySize = 0`** (alimentació externa / temps real), sense perdre la configuració després d'un tall de corrent o un *factory reset*.
+* **Marge ampliat de ràdio (`app_sleep_handler.c`):** En mode alimentació externa (`bAppIsMainsPowered()`), desactiva el tall ràpid *post-report* i amplia l'espera fins a ~3 segons (`30 intents`) perquè arribi la confirmació `APS ACK` a través de diversos salts de *routers*.
+* **Reconnexió sense *backoff* llarg i *Watchdog* de reinici (`app_sleep_handler.c`):** Elimina les esperes de fins a 32 minuts en perdre un *router* i força un desat a memòria *flash* (`PDM`) seguit d'un reinici net (`NVIC_SystemReset()`) si acumula 15 intents fallits seguits.
+* **Compilació automàtica al núvol (`.github/workflows/main.yml`):** Compila el firmware `.bin` automàticament amb GitHub Actions sota Linux.
+
+---
+
+
 ## Sommaire
 
 * [Description](#description)  

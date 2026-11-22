@@ -13,13 +13,12 @@ jobs:
       - name: Descarregar codi
         uses: actions/checkout@v4
 
-      - name: Instal·lar compilador ARM, eines i Wine
+      - name: Instal·lar compilador ARM i eines
         run: |
-          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi make python3 wine wine32:i386
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi make python3
 
-      - name: Compatibilitat Windows-Linux (capçaleres i eines Zigbee)
+      - name: Compatibilitat Windows-Linux i preservació de taules Zigbee
         run: |
           find . -type f -name "*.h" -exec bash -c '
             for f; do
@@ -33,10 +32,13 @@ jobs:
           ' bash {} +
           find . -iname "pwr_interface.h" -exec cp {} PulsesSensor/Source/PWR_interface.h \;
 
+          mkdir -p /tmp/zps_backup
+          cp PulsesSensor/Source/pdum_gen.* PulsesSensor/Source/zps_gen*.* PulsesSensor/Source/pdum_apdu.* /tmp/zps_backup/ || true
+
           TOOLS_DIR="PulsesSensor/SDK_2_6_4_JN5189DK6/middleware/wireless/zigbee/tools"
           mkdir -p "$TOOLS_DIR/PDUMConfig/linuxbin" "$TOOLS_DIR/ZPSConfig/linuxbin"
-          printf '#!/bin/bash\nwine "$(dirname "$0")/../winbin/PDUMConfig.exe" "$@"\n' > "$TOOLS_DIR/PDUMConfig/linuxbin/PDUMConfig"
-          printf '#!/bin/bash\nwine "$(dirname "$0")/../winbin/ZPSConfig.exe" "$@"\n' > "$TOOLS_DIR/ZPSConfig/linuxbin/ZPSConfig"
+          printf '#!/bin/bash\ncp /tmp/zps_backup/pdum_gen.* /tmp/zps_backup/pdum_apdu.* ../../../PulsesSensor/Source/ 2>/dev/null || true\n' > "$TOOLS_DIR/PDUMConfig/linuxbin/PDUMConfig"
+          printf '#!/bin/bash\ncp /tmp/zps_backup/zps_gen*.* ../../../PulsesSensor/Source/ 2>/dev/null || true\n' > "$TOOLS_DIR/ZPSConfig/linuxbin/ZPSConfig"
           chmod +x "$TOOLS_DIR/PDUMConfig/linuxbin/PDUMConfig" "$TOOLS_DIR/ZPSConfig/linuxbin/ZPSConfig"
 
       - name: Compilar firmware JN5189

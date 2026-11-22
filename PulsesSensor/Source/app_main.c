@@ -487,12 +487,12 @@ PRIVATE void vApplyBatterySize(uint8 u8BatterySize)
 /* Called at startup, after the clusters are initialised */
 PUBLIC void vAppLoadPowerMode(void)
 {
-	uint8 u8BatterySize = E_CLD_PWRCFG_BATTERY_SIZE_OTHER;
+	uint8 u8BatterySize = E_CLD_PWRCFG_BATTERY_SIZE_NO_BATTERY;
 	uint16 u16BytesRead = 0;
 	if ((PDM_eReadDataFromRecord(PDM_ID_APP_POWER_MODE, &u8BatterySize, sizeof(u8BatterySize), &u16BytesRead) != PDM_E_STATUS_OK) ||
 		(u16BytesRead != sizeof(u8BatterySize)))
 	{
-		u8BatterySize = E_CLD_PWRCFG_BATTERY_SIZE_OTHER;
+		u8BatterySize = E_CLD_PWRCFG_BATTERY_SIZE_NO_BATTERY;
 	}
 	vApplyBatterySize(u8BatterySize);
 }

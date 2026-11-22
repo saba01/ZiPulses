@@ -30,6 +30,7 @@ jobs:
               fi
             done
           ' bash {} +
+          find . -iname "pwr_interface.h" -exec cp {} PulsesSensor/Source/PWR_interface.h \;
 
       - name: Compilar firmware JN5189
         working-directory: PulsesSensor/Build/mcux

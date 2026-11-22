@@ -60,6 +60,9 @@
 #include "app_zlo_sensor_node.h"
 #include "App_PulsesSensor.h"
 #include "MicroSpecific.h"
+#include "PDM.h"
+#include "PDM_IDs.h"
+#include "fsl_device_registers.h"
 #include "app_pulses_buttons.h"
 #include "app_pulses_events.h"
 #include "app_blink_led.h"
@@ -681,17 +684,17 @@ PRIVATE void vScheduleSleep(uint32 u32WakeMs)
        #endif
        { /* u32WakeMs: time left in the current period (vProgramNextWake) */ }
 #ifdef APP_LOW_POWER_API
-        PWR_eScheduleActivity(&sWake, u32WakeMs, vWakeCallBack);
+        PWR_eScheduleActivity(&sWake, u32WakeMs, );
 #else
-        PWRM_eScheduleActivity(&sWake, u32WakeMs, vWakeCallBack);
+        PWRM_eScheduleActivity(&sWake, u32WakeMs, );
 #endif
         DBG_vPrintf(TRACE_SLEEP_HANDLER , "\r\nSLEEP: PWRM_eScheduleActivity(%dms)", u32WakeMs);
     }
 #else
 #ifdef APP_LOW_POWER_API
-    PWR_eScheduleActivity(&sWake, u32WakeMs, vWakeCallBack);
+    PWR_eScheduleActivity(&sWake, u32WakeMs, );
 #else
-    PWRM_eScheduleActivity(&sWake, u32WakeMs, vWakeCallBack);
+    PWRM_eScheduleActivity(&sWake, u32WakeMs, );
 #endif
     DBG_vPrintf(TRACE_SLEEP_HANDLER , "\r\nSLEEP: PWRM_eScheduleActivity(%dms)", u32WakeMs);
 #endif
@@ -904,8 +907,8 @@ PRIVATE void vWakeCallBack(void)
             u8MainsRejoinFails++;
             if (u8MainsRejoinFails >= 15)
             {
-                vAppSaveCounter();
-                MICRO_RESTART();
+                PDM_eSaveRecordData(PDM_ID_APP_COUNTER, &sDeviceCounter, sizeof(tsDeviceCounter));
+                NVIC_SystemReset();
             }
             vHandleButtonPressedEventRejoin(false);
         }

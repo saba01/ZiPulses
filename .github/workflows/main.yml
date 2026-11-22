@@ -1,0 +1,30 @@
+name: Compilar ZiPulses
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master", "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descarregar codi
+        uses: actions/checkout@v4
+
+      - name: Instal·lar compilador ARM i eines
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi make python3
+
+      - name: Compilar firmware JN5189
+        working-directory: PulsesSensor/Build/mcux
+        run: |
+          make JENNIC_CHIP=JN5189 DR=OM15082 all
+
+      - name: Pujar fitxer .bin compilat
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZiPulses-Personalitzat-v12.2
+          path: PulsesSensor/Build/mcux/**/*.bin

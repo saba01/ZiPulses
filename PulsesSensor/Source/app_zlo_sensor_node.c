@@ -173,8 +173,8 @@ PUBLIC void APP_vInitialiseNode(void)
 
     sDeviceCounter.counter=0;
     sDeviceCounter.multiplier=1;
-    sDeviceCounter.divisor=1;
-    sDeviceCounter.unitMeasure=0;
+    sDeviceCounter.divisor=1000;
+    sDeviceCounter.unitMeasure=1;
     PDM_eReadDataFromRecord(PDM_ID_APP_COUNTER,
                                 &sDeviceCounter,
                                 sizeof(tsDeviceCounter),

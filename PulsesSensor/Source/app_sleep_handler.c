@@ -59,6 +59,7 @@
 #include "app_zcl_sensor_task.h"
 #include "app_zlo_sensor_node.h"
 #include "App_PulsesSensor.h"
+#include "MicroSpecific.h"
 #include "app_pulses_buttons.h"
 #include "app_pulses_events.h"
 #include "app_blink_led.h"
@@ -232,7 +233,7 @@ PUBLIC void vAttemptToSleep(void)
         APP_vSetLED(LED1, 0);
 
         /* 2. Détection rapide du scénario "post-report" */
-        bool_t bPostReportScenario = (u16ActivityCount >= 5) && !bCommissioning;
+        bool_t bPostReportScenario = (u16ActivityCount >= 5) && !bCommissioning && !bAppIsMainsPowered();
 
         if (bPostReportScenario)
         {
@@ -302,7 +303,9 @@ PUBLIC void vAttemptToSleep(void)
             DBG_vPrintf(TRUE, "\r\nSLEEP: Check failed (count=%d)", u8SleepCheckFailures);
 
             /* FORÇAGE RAPIDE après seulement 3 échecs (jamais pendant le commissioning) */
-            if ((u8SleepCheckFailures >= 3) && !bCommissioning)
+            uint8 u8MaxSleepFailures = bAppIsMainsPowered() ? 30 : 3;
+            if ((u8SleepCheckFailures >= u8MaxSleepFailures) && !bCommissioning)
+
             {
                 DBG_vPrintf(TRUE, "\r\n*** SLEEP: LEVEL 3 - FORCING SLEEP (fast track) ***");
 
@@ -895,9 +898,24 @@ PRIVATE void vWakeCallBack(void)
 
     if (bBDBJoinFailed)
     {
-    	/* Rejoin déjà en échec : retenter avec backoff (1, 2, 4 ... réveils) */
-    	vRejoinBackoffOnWake();
+        if (bAppIsMainsPowered())
+        {
+            static uint8 u8MainsRejoinFails = 0;
+            u8MainsRejoinFails++;
+            if (u8MainsRejoinFails >= 15)
+            {
+                vAppSaveCounter();
+                MICRO_RESTART();
+            }
+            vHandleButtonPressedEventRejoin(false);
+        }
+        else
+        {
+            /* Rejoin déjà en échec : retenter avec backoff (1, 2, 4 ... réveils) */
+            vRejoinBackoffOnWake();
+        }
     }
+
     else if ((u8NbFailedTransmit>=5) && !bAppRejoinInProgress)
     {
     	DBG_vPrintf(1, "\r\nREJOIN after too many transmit failed\r\n");

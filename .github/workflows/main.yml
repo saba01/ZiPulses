@@ -18,6 +18,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi make python3
 
+      - name: Compatibilitat majuscules/minuscules Windows-Linux
+        run: |
+          find PulsesSensor/SDK_2_6_4_JN5189DK6 -name "*.h" | while read f; do
+            dir=$(dirname "$f")
+            base=$(basename "$f")
+            lower=$(echo "$base" | tr '[:upper:]' '[:lower:]')
+            if [ "$base" != "$lower" ] && [ ! -e "$dir/$lower" ]; then
+              ln -s "$base" "$dir/$lower"
+            fi
+          done
+          ln -sf PWR_Interface.h PulsesSensor/SDK_2_6_4_JN5189DK6/middleware/wireless/framework/LowPower/Interface/jn5189dk6/PWR_interface.h || true
+
       - name: Compilar firmware JN5189
         working-directory: PulsesSensor/Build/mcux
         run: |
@@ -28,3 +40,4 @@ jobs:
         with:
           name: ZiPulses-Personalitzat-v12.2
           path: Binaries/**/*.bin
+

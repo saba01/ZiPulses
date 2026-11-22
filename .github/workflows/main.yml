@@ -21,10 +21,10 @@ jobs:
       - name: Compilar firmware JN5189
         working-directory: PulsesSensor/Build/mcux
         run: |
-          make JENNIC_CHIP=JN5189 DR=OM15082 all
+          make TOOLCHAIN_DIR_PATH=/usr TOOLCHAIN_PATH=/usr/bin JENNIC_CHIP=JN5189 DR=OM15082 all
 
       - name: Pujar fitxer .bin compilat
         uses: actions/upload-artifact@v4
         with:
           name: ZiPulses-Personalitzat-v12.2
-          path: PulsesSensor/Build/mcux/**/*.bin
+          path: Binaries/**/*.bin

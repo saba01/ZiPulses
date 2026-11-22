@@ -13,12 +13,13 @@ jobs:
       - name: Descarregar codi
         uses: actions/checkout@v4
 
-      - name: Instal·lar compilador ARM i eines
+      - name: Instal·lar compilador ARM, eines i Wine
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi make python3
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi make python3 wine wine32:i386
 
-      - name: Compatibilitat majuscules/minuscules Windows-Linux
+      - name: Compatibilitat Windows-Linux (capçaleres i eines Zigbee)
         run: |
           find . -type f -name "*.h" -exec bash -c '
             for f; do
@@ -32,6 +33,12 @@ jobs:
           ' bash {} +
           find . -iname "pwr_interface.h" -exec cp {} PulsesSensor/Source/PWR_interface.h \;
 
+          TOOLS_DIR="PulsesSensor/SDK_2_6_4_JN5189DK6/middleware/wireless/zigbee/tools"
+          mkdir -p "$TOOLS_DIR/PDUMConfig/linuxbin" "$TOOLS_DIR/ZPSConfig/linuxbin"
+          printf '#!/bin/bash\nwine "$(dirname "$0")/../winbin/PDUMConfig.exe" "$@"\n' > "$TOOLS_DIR/PDUMConfig/linuxbin/PDUMConfig"
+          printf '#!/bin/bash\nwine "$(dirname "$0")/../winbin/ZPSConfig.exe" "$@"\n' > "$TOOLS_DIR/ZPSConfig/linuxbin/ZPSConfig"
+          chmod +x "$TOOLS_DIR/PDUMConfig/linuxbin/PDUMConfig" "$TOOLS_DIR/ZPSConfig/linuxbin/ZPSConfig"
+
       - name: Compilar firmware JN5189
         working-directory: PulsesSensor/Build/mcux
         run: |
@@ -40,5 +47,5 @@ jobs:
       - name: Pujar fitxer .bin compilat
         uses: actions/upload-artifact@v4
         with:
-          name: ZiPulses-Personalitzat-v12.2
+          name: ZiPulses-12.2-ExtPower
           path: Binaries/**/*.bin

@@ -16,7 +16,8 @@ jobs:
       - name: Instal·lar compilador ARM i eines
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi make python3
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi make python3 python3-pip python3-cryptography
+          sudo ln -sf /usr/bin/python3 /usr/local/bin/py
 
       - name: Compatibilitat Windows-Linux i preservació de taules Zigbee
         run: |

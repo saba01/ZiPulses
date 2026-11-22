@@ -20,7 +20,7 @@ jobs:
 
       - name: Compatibilitat majuscules/minuscules Windows-Linux
         run: |
-          find PulsesSensor/SDK_2_6_4_JN5189DK6 -name "*.h" | while read f; do
+          find . -name "*.h" | while read f; do
             dir=$(dirname "$f")
             base=$(basename "$f")
             lower=$(echo "$base" | tr '[:upper:]' '[:lower:]')
@@ -28,16 +28,14 @@ jobs:
               ln -s "$base" "$dir/$lower"
             fi
           done
-          ln -sf PWR_Interface.h PulsesSensor/SDK_2_6_4_JN5189DK6/middleware/wireless/framework/LowPower/Interface/jn5189dk6/PWR_interface.h || true
 
       - name: Compilar firmware JN5189
         working-directory: PulsesSensor/Build/mcux
         run: |
-          make TOOLCHAIN_DIR_PATH=/usr TOOLCHAIN_PATH=/usr/bin JENNIC_CHIP=JN5189 DR=OM15082 all
+          make TOOLCHAIN_DIR_PATH=/usr TOOLCHAIN_PATH=/usr/bin APP_NTAG_ICODE=0 JENNIC_CHIP=JN5189 DR=OM15082 all
 
       - name: Pujar fitxer .bin compilat
         uses: actions/upload-artifact@v4
         with:
           name: ZiPulses-Personalitzat-v12.2
           path: Binaries/**/*.bin
-

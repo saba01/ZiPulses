@@ -684,7 +684,7 @@ PRIVATE void vScheduleSleep(uint32 u32WakeMs)
        #endif
        { /* u32WakeMs: time left in the current period (vProgramNextWake) */ }
 #ifdef APP_LOW_POWER_API
-        PWR_eScheduleActivity(&sWake, u32WakeMs, );
+        PWR_eScheduleActivity(&sWake, u32WakeMs, vWakeCallBack);
 #else
         PWRM_eScheduleActivity(&sWake, u32WakeMs, );
 #endif
